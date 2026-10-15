@@ -6,13 +6,14 @@ import functools
 import importlib
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Sequence
-from typing import Any, ClassVar, override
+from typing import Any, ClassVar
 
 from langchain_core.callbacks import Callbacks
 from langchain_core.cross_encoders import BaseCrossEncoder
 from langchain_core.documents import Document
 from langchain_core.documents.compressor import BaseDocumentCompressor
 from pydantic import BaseModel, ConfigDict
+from typing_extensions import override
 
 
 class RerankResult(BaseModel):
