@@ -3,6 +3,7 @@
 import pytest
 from langchain_core.cross_encoders import BaseCrossEncoder
 from langchain_core.documents import Document
+from pydantic import ValidationError
 
 from langchain_reranker.rerankers import (
     BaseReranker,
@@ -93,3 +94,71 @@ def test_missing_package_raises_import_error(monkeypatch) -> None:
             init_reranker("fake:model")
     finally:
         base._get_reranker_class_creator.cache_clear()
+
+
+class _FakeResponse:
+    def __init__(self, payload: dict) -> None:
+        self._payload = payload
+
+    def raise_for_status(self) -> None:
+        return None
+
+    def json(self) -> dict:
+        return self._payload
+
+
+def test_llama_server_reranker(monkeypatch, documents: list[Document]) -> None:
+    from langchain_reranker.rerankers import llama_server as module
+
+    captured: dict = {}
+
+    def fake_post(url, headers=None, json=None, timeout=None):
+        captured.update(url=url, headers=headers, json=json, timeout=timeout)
+        return _FakeResponse(
+            {
+                "results": [
+                    {"index": 1, "relevance_score": 0.9},
+                    {"index": 0, "relevance_score": 0.1},
+                ]
+            }
+        )
+
+    monkeypatch.setattr(module.httpx, "post", fake_post)
+
+    reranker = module.LlamaServerReranker(
+        model="bge-reranker",
+        base_url="http://127.0.0.1:9932/",
+    )
+    results = reranker.rerank("apple", documents)
+
+    assert captured["url"] == "http://127.0.0.1:9932/rerank"
+    assert captured["json"] == {
+        "model": "bge-reranker",
+        "query": "apple",
+        "documents": ["banana", "apple phone"],
+    }
+    assert "Authorization" not in captured["headers"]
+    assert [result.index for result in results] == [1, 0]
+    assert results[0].document.page_content == "apple phone"
+
+
+def test_init_reranker_llama_server() -> None:
+    from langchain_reranker.rerankers.llama_server import LlamaServerReranker
+
+    reranker = init_reranker(
+        "llama_server:bge-reranker",
+        base_url="http://127.0.0.1:9932",
+        api_key="secret",
+        top_n=5,
+    )
+
+    assert isinstance(reranker, LlamaServerReranker)
+    assert reranker.model == "bge-reranker"
+    assert reranker.base_url == "http://127.0.0.1:9932"
+    assert reranker.api_key == "secret"
+    assert reranker.top_n == 5
+
+
+def test_llama_server_requires_base_url() -> None:
+    with pytest.raises(ValidationError):
+        init_reranker("llama_server:bge-reranker")

@@ -6,10 +6,12 @@ from langchain_reranker.rerankers.base import (
     RerankResult,
     init_reranker,
 )
+from langchain_reranker.rerankers.llama_server import LlamaServerReranker
 
 __all__ = [
     "BaseReranker",
     "CrossEncoderReranker",
+    "LlamaServerReranker",
     "RerankResult",
     "init_reranker",
 ]

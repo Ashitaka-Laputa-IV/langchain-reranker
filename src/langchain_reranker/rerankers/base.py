@@ -178,6 +178,11 @@ _BUILTIN_PROVIDERS: dict[str, tuple[str, str, Callable[..., BaseDocumentCompress
         _call,
     ),
     "jina": ("langchain_community.document_compressors", "JinaRerank", _call),
+    "llama_server": (
+        "langchain_reranker.rerankers.llama_server",
+        "LlamaServerReranker",
+        _call,
+    ),
     "local": (
         "langchain_community.cross_encoders",
         "HuggingFaceCrossEncoder",
@@ -377,6 +382,7 @@ def init_reranker(
             - `huggingface`  -> `langchain-huggingface`
             - `infinity`     -> `langchain-community`
             - `jina`         -> `langchain-community`
+            - `llama_server` -> `langchain-reranker` (llama.cpp `llama-server`)
             - `local`        -> `langchain-community` (sentence-transformers)
             - `openvino`     -> `langchain-community`
             - `rankllm`      -> `langchain-community`
