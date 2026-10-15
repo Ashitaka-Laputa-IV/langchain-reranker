@@ -1,0 +1,45 @@
+# Byte-compiled / optimized / cached files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# Python environments
+.venv/
+venv/
+env/
+.python-version
+
+# uv
+# (uv.lock is intentionally tracked)
+
+# Test / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Type checkers / linters
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE / editors
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

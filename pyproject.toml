@@ -1,0 +1,31 @@
+[project]
+name = "langchain-reranker"
+version = "0.1.1"
+description = "Add init_reranker to the LangChain ecosystem"
+readme = "README.md"
+authors = [
+    { name = "Ashitaka-Laputa-IV", email = "Ashitaka-Laputa-IV@outlook.com" }
+]
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.13"
+keywords = ["langchain", "reranker", "rerank", "rag", "retrieval"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "langchain-core>=1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.23,<0.13.0"]
+build-backend = "uv_build"
