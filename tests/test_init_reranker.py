@@ -107,8 +107,8 @@ class _FakeResponse:
         return self._payload
 
 
-def test_llama_server_reranker(monkeypatch, documents: list[Document]) -> None:
-    from langchain_reranker.rerankers import llama_server as module
+def test_http_reranker(monkeypatch, documents: list[Document]) -> None:
+    from langchain_reranker.rerankers import http_reranker as module
 
     captured: dict = {}
 
@@ -125,7 +125,7 @@ def test_llama_server_reranker(monkeypatch, documents: list[Document]) -> None:
 
     monkeypatch.setattr(module.httpx, "post", fake_post)
 
-    reranker = module.LlamaServerReranker(
+    reranker = module.HttpReranker(
         model="bge-reranker",
         base_url="http://127.0.0.1:9932/",
     )
@@ -162,3 +162,36 @@ def test_init_reranker_llama_server() -> None:
 def test_llama_server_requires_base_url() -> None:
     with pytest.raises(ValidationError):
         init_reranker("llama_server:bge-reranker")
+
+
+def test_custom_provider_requires_base_url() -> None:
+    with pytest.raises(ValidationError):
+        init_reranker("custom:Qwen/Qwen3-Reranker-4B")
+
+
+def test_custom_provider_accepts_base_url_and_api_key() -> None:
+    from langchain_reranker.rerankers.http_reranker import HttpReranker
+
+    reranker = init_reranker(
+        "custom:Qwen/Qwen3-Reranker-4B",
+        base_url="https://api.siliconflow.cn/v1",
+        api_key="sk-test",
+    )
+
+    assert isinstance(reranker, HttpReranker)
+    assert reranker.model == "Qwen/Qwen3-Reranker-4B"
+    assert reranker.base_url == "https://api.siliconflow.cn/v1"
+    assert reranker.api_key == "sk-test"
+
+
+def test_siliconflow_provider_defaults_base_url() -> None:
+    from langchain_reranker.rerankers.http_reranker import HttpReranker
+
+    reranker = init_reranker(
+        "siliconflow:Qwen/Qwen3-Reranker-4B",
+        api_key="sk-test",
+    )
+
+    assert isinstance(reranker, HttpReranker)
+    assert reranker.base_url == "https://api.siliconflow.cn/v1"
+    assert reranker.model == "Qwen/Qwen3-Reranker-4B"

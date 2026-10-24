@@ -154,9 +154,29 @@ def _call_cross_encoder(
     )
 
 
+def _call_with_base_url(default_base_url: str) -> Callable[..., BaseDocumentCompressor]:
+    def creator(
+        cls: type[Any],
+        model: str,
+        **kwargs: Any,
+    ) -> BaseDocumentCompressor:
+        kwargs.setdefault("base_url", default_base_url)
+        return cls(model=model, **kwargs)
+
+    return creator
+
+
+_call_siliconflow = _call_with_base_url("https://api.siliconflow.cn/v1")
+
+
 _BUILTIN_PROVIDERS: dict[str, tuple[str, str, Callable[..., BaseDocumentCompressor]]] = {
     "bedrock": ("langchain_aws", "AmazonBedrockRerank", _call),
     "cohere": ("langchain_cohere", "CohereRerank", _call),
+    "custom": (
+        "langchain_reranker.rerankers.http_reranker",
+        "HttpReranker",
+        _call,
+    ),
     "dashscope": (
         "langchain_community.document_compressors",
         "DashScopeRerank",
@@ -179,8 +199,8 @@ _BUILTIN_PROVIDERS: dict[str, tuple[str, str, Callable[..., BaseDocumentCompress
     ),
     "jina": ("langchain_community.document_compressors", "JinaRerank", _call),
     "llama_server": (
-        "langchain_reranker.rerankers.llama_server",
-        "LlamaServerReranker",
+        "langchain_reranker.rerankers.http_reranker",
+        "HttpReranker",
         _call,
     ),
     "local": (
@@ -197,6 +217,11 @@ _BUILTIN_PROVIDERS: dict[str, tuple[str, str, Callable[..., BaseDocumentCompress
         "langchain_community.document_compressors",
         "RankLLMRerank",
         _call,
+    ),
+    "siliconflow": (
+        "langchain_reranker.rerankers.http_reranker",
+        "HttpReranker",
+        _call_siliconflow,
     ),
     "volcengine": (
         "langchain_community.document_compressors",
@@ -377,6 +402,7 @@ def init_reranker(
 
             - `bedrock`      -> `langchain-aws`
             - `cohere`       -> `langchain-cohere`
+            - `custom`       -> `langchain-reranker` (any Cohere-style HTTP endpoint)
             - `dashscope`    -> `langchain-community`
             - `flashrank`    -> `langchain-community`
             - `huggingface`  -> `langchain-huggingface`
@@ -386,6 +412,7 @@ def init_reranker(
             - `local`        -> `langchain-community` (sentence-transformers)
             - `openvino`     -> `langchain-community`
             - `rankllm`      -> `langchain-community`
+            - `siliconflow`  -> `langchain-reranker` (SiliconFlow)
             - `volcengine`   -> `langchain-community`
             - `voyageai`     -> `langchain-voyageai`
 

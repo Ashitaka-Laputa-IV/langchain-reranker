@@ -1,6 +1,6 @@
 [project]
 name = "langchain-reranker"
-version = "0.1.3"
+version = "0.1.4"
 description = "Add init_reranker to the LangChain ecosystem"
 readme = "README.md"
 authors = [
